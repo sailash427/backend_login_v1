@@ -244,6 +244,44 @@ app.post('/api/users/reset-password', async (req, res) => {
     }
 });
 
+/**
+ * @route GET /api/users/:email
+ * @desc Fetch user details by email
+ */
+app.get('/api/users/:email', async (req, res) => {
+    try {
+        const email = req.params.email; // Get the email from the URL parameter
+        console.log('Fetching user details for email:', email);
+
+        // Find the user by email
+        const user = await User.findOne({ Email: email });
+
+        if (!user) {
+            console.log('User not found for email:', email);
+            return res.status(404).send({ error: "User not found" });
+        }
+
+        // Return the user details (excluding sensitive fields like password)
+        const userDetails = {
+            FirstName: user.FirstName,
+            MiddleName: user.MiddleName,
+            LastName: user.LastName,
+            Role: user.Role,
+            Gender: user.Gender,
+            Nationality: user.Nationality,
+            State: user.State,
+            Pincode: user.Pincode,
+            Email: user.Email,
+        };
+
+        console.log('User details fetched successfully:', userDetails);
+        res.status(200).send(userDetails);
+    } catch (error) {
+        console.error('Error fetching user details:', error);
+        res.status(500).send({ error: 'Failed to fetch user details', details: error.message });
+    }
+});
+
 // Centralized error handling middleware
 app.use((err, req, res, next) => {
     console.error(err.stack);
